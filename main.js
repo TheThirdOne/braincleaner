@@ -131,7 +131,7 @@ fcns.whilenot = function(c,code){
     pos += "+";
   }
   emit(neg,0);
-  emit("["+pos",0);
+  emit("["+pos,0);
   var temp = stack;
   code();
   if(temp !== stack){
