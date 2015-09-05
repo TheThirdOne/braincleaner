@@ -20,6 +20,27 @@ test(function(){
 },[""],
   ["3501"]);
 
+//tests createVar, loadc, storev, load, mul, printd, prints
+test(function(){
+fcns.createVar("x");
+fcns.createVar("y");
+fcns.loadc(4);
+fcns.storev("x");
+fcns.loadc(2);
+fcns.storev("y");
+fcns.load("x");
+fcns.load("y");
+fcns.mul();
+fcns.load("x");
+fcns.printd();
+fcns.prints("*");
+fcns.load("y");
+fcns.printd();
+fcns.prints("=");
+fcns.printd();
+},[""],
+  ["4*2=8"]);
+
 //tests whilenot, scans, and pop
 test(function(){
 fcns.scans();
