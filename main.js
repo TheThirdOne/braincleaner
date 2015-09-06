@@ -28,6 +28,37 @@ createMacro("scans",   1, ">,");
 createMacro("scand",   1, ">,>++++[-<------------>]<");
 createMacro("printd", -1, ">++++[-<++++++++++++>]<.[-]<");
 
+// exp = false: n -> n/c n%c
+// exp = true:  n -> 0   n%c 0 n/d
+fcns.divmodc = function(c,exp){
+  var code = "[>[-]<",end = "";
+  for(var i = 0; i < c-1;i++){
+    code += "[->+<";
+    end += "]";
+  }
+  code += "[->>>+<<[-]]" + end + ">[>]<<]>>>"+(exp?"":"[-<<<+>>>]<<");
+  
+  emit(code,exp?3:1);
+};
+
+fcns.printD = function(){
+  var s = stack;
+  fcns.divmodc(10,true);
+  emit("[",0);
+    fcns.divmodc(10,true);
+    emit("[",0);
+      fcns.divmodc(10,true);
+      emit("<<",-2);
+      fcns.printd();
+    emit("]",0);
+    emit("<<",-2);
+    fcns.printd();
+  emit("]",0);
+  emit("<<",-2);
+  fcns.printd();
+  emit("<",-1);
+};
+
 fcns.prints = function(s){
   var code = ">";
   var previous = 0;

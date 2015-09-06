@@ -52,6 +52,12 @@ fcns.whilenot(0,function(){
 },["a","","hello world"],
   ["a","","hello world"]);
 
+//tests whilenot, scans, and pop
+test(function(){
+fcns.scans();
+fcns.printD();
+},["!","d",">"],
+  ["33","100","62"]);
 
 //bf -> js compiler
 test(function(){
