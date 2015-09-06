@@ -178,8 +178,9 @@ fcns.whilenot = function(c,code){
   emit(neg + "]",0);
 };
 
-//format: old stack | cond | run (generated)
-fcns.switch = function(cases,triggers,def){
+//format: old stack | cond | run (generated) | temp (if using not using break in this case make sure this cell is 0 before it ends)
+fcns.switch = function(cases,triggers,def,breaks){
+  breaks = breaks || [];
   if(triggers.length !== cases.length){
     throw "case arrays don't match length";
   }
@@ -203,7 +204,7 @@ fcns.switch = function(cases,triggers,def){
   for(var i = cases.length-1; i >= 0; i--){
     emit("]>[-",0); //set run = false
     cases[i]();
-    emit("]<",0);
+    emit(breaks[i]?">+<]>[-<+>]<<":"]<",0);
   }
   emit("<",-2);
 };

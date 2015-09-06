@@ -59,6 +59,21 @@ fcns.printD();
 },["!","d",">"],
   ["33","100","62"]);
 
+//tests switch
+test(function(){
+fcns.scans();
+fcns.switch([
+function(){fcns.prints("+")},//+
+function(){fcns.prints("-")},//-
+function(){fcns.prints(".")},//.
+function(){fcns.prints("<")},//<
+function(){fcns.prints(">")},//>
+function(){fcns.prints("{")},//[
+function(){fcns.prints("}")} //]
+],[43,45,46,60,62,91,93],function(){},[1,1,1,0,1,1,1]);
+},[">", "]",   ".", "a"],
+  ["><","}{><",".-+",""]);
+
 //bf -> js compiler
 test(function(){
 fcns.prints("var s = [],p=0;");
