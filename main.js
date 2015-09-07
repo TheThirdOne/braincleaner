@@ -19,6 +19,7 @@ createMacro("add",    -1, "[-<+>]<");
 createMacro("mul",    -1, "<[->[->+>+<<]>>[-<<+>>]<<<]>[-]>[-<<+>>]<<");
 createMacro("eq",     -1, "<[->-<]+>[<->[-]]<");
 createMacro("neq",    -1, "<[->-<]>[<+>[-]]<");
+createMacro("cmp",     0, "<[->>+<<]>>>>+<<+<+>[-<-[<]>>]>[-<<<+>>]>[-<<<[-]>>>]<<[[-]<<+>>]<"); // a b -> a=b a>=b
 createMacro("nand",   -1, "<[->+<]>--[<+>[+]]<");
 createMacro("or",     -1, "<[->+<]>[<+>[-]]<");
 createMacro("nor",    -1, "<[->+<]+>[<->[-]]<");
@@ -102,7 +103,7 @@ fcns.loadv = function(label,dup){
   emit(out,dup?1:0);
 };
 
-fcns.storev = function(label){
+fcns.storev = function(label,clear){
   var l="",r="",out;
   if(!vars[label]){
     throw "Unknown variable";
@@ -115,7 +116,7 @@ fcns.storev = function(label){
     l += "<";
     r += ">";
   }
-  out = "[-"+l+"+"+r+"]<";
+  out = (clear?l+"[-]"+r:"")+"[-"+l+"+"+r+"]<";
   emit(out,-1);
 };
 
