@@ -10,6 +10,11 @@ parser.whilenot = function(){
   c.type = "whilenot";
   context.push(c);
 };
+parser.if = function(){
+  var c = [];
+  c.type = "if";
+  context.push(c);
+};
 parser.end= function(){
   var last = context.pop();
   context[context.length-1].push(last);
@@ -31,6 +36,18 @@ parser.case = function(c){
   tmp.break = false;
   context.push(tmp);
 };
+parser.emit = function(c){
+  context[context.length-1].push({type: "inst",fcn:emit,args:[c,0]});
+};
+parser.loadc = function(c){
+  context[context.length-1].push({type: "inst",fcn:fcns.loadc,args:[c]});
+};
+parser.frame = function(c){
+  context[context.length-1].push({type: "inst",fcn:fcns.frame,args:[c]});
+};
+parser.to = function(c){
+  context[context.length-1].push({type: "inst",fcn:fcns.to,args:[c]});
+};
 parser.break = function(){
   if(context[context.length-1].type !== "case" ){
     throw "Cannot use break outside case";
@@ -42,10 +59,10 @@ parser.break = function(){
 
 parser.inst = function(inst){
   if(typeof fcns[inst] !== "function"){
-    throw "Not a valid instruction";
+    throw "Not a valid instruction:"+inst;
   }
   if(fcns[inst].length !== 0){
-    throw "Not a macro";
+    throw "Not a macro:"+inst;
   }
   context[context.length-1].push({type:"inst",fcn:fcns[inst]});
 };
@@ -63,18 +80,27 @@ parser.parse = function(code){
       parser.break();
     }else if(lines[i] === "end"){
       parser.end();
+    }else if(lines[i] === "if"){
+      parser.if();
     }else if(lines[i].startsWith("case")){
       parser.case(parseInt(lines[i].split(" ")[1]));
+    }else if(lines[i].startsWith("loadc")){
+      parser.loadc(parseInt(lines[i].split(" ")[1]));
+    }else if(lines[i].startsWith("frame")){
+      parser.frame(lines[i].split(" ").slice(1));
+    }else if(lines[i].startsWith("to")){
+      parser.to(lines[i].slice(3));
+    }else if(lines[i].startsWith("emit")){
+      parser.emit(lines[i].slice(5));
     }else if(lines[i].startsWith("prints")){
       parser.prints(lines[i].slice(7));
     }else{
-      parser.inst(lines[i])
+      parser.inst(lines[i]);
     }
   }
-}
+};
 
 parser.codegen = function(context){
-  console.log(context)
   if(context.type === "inst"){
     context.fcn.apply(context,context.args);
     return;
@@ -100,12 +126,12 @@ parser.codegen = function(context){
       statements[i]();
     }
   };
-  console.log(statements)
   if(context.type === "whilenot"){
-    console.log("starting whilenot")
     fcns.whilenot(0,doAll);
-    console.log("ending whilenot");
     return;
+  }
+  if(context.type === "if"){
+    fcns.if(doAll);
   }
   doAll();
 }

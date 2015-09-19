@@ -1,5 +1,6 @@
 var fcns = {};
 var vars = {};
+var frame = {};
 var code = "";
 var stack = 0;
 
@@ -174,7 +175,7 @@ fcns.whilenot = function(c,code){
   var temp = stack;
   code();
   if(temp !== stack){
-    throw "Code inside while causes net stack change";
+    throw "Code inside while causes net stack change:" + (stack-temp) ;
   }
   emit(neg + "]",0);
 };
@@ -203,11 +204,29 @@ fcns.switch = function(cases,triggers,def,breaks){
   def();
   emit("<[-]",0); //set cond = 0
   for(var i = cases.length-1; i >= 0; i--){
-    emit("]>[-",0); //set run = false
+    emit("]>[-< next case",0); //set run = false
     cases[i]();
-    emit(breaks[i]?">+<]>[-<+>]<<":"]<",0);
+    emit(breaks[i]?">>+<]>[-<+>]<<":">]<",0);
   }
   emit("<",-2);
+};
+
+fcns.frame = function(names){
+  frame._loc = 0;
+  for(var i = 0; i < names.length;i++){
+    frame[names[i]] = i;
+  }
+};
+fcns.to = function(name){
+  var diff = frame[name] - frame._loc;
+  var sign = diff > 0 ?">":"<";
+  diff = diff > 0?diff:-diff;
+  var code = "";
+  for(var i = 0; i < diff; i++){
+    code += sign;
+  }
+  frame._loc = frame[name];
+  emit(code,0);
 };
 
 var emit = function(str,diff){
