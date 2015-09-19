@@ -132,6 +132,7 @@ parser.codegen = function(context){
   }
   if(context.type === "if"){
     fcns.if(doAll);
+    return;
   }
   doAll();
 }

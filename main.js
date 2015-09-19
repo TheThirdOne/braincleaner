@@ -188,7 +188,7 @@ fcns.switch = function(cases,triggers,def,breaks){
   }
   emit(">+<",1);
   var previous = 0;
-  var code = "";
+  var code = "\n";
   for(var item = 0; item < triggers.length; item++){
     var diff = previous - triggers[item];
     var sign = diff > 0?"+":"-";
@@ -204,11 +204,11 @@ fcns.switch = function(cases,triggers,def,breaks){
   def();
   emit("<[-]",0); //set cond = 0
   for(var i = cases.length-1; i >= 0; i--){
-    emit("]>[-< next case",0); //set run = false
+    emit("]>\n[-<",0); //set run = false
     cases[i]();
     emit(breaks[i]?">>+<]>[-<+>]<<":">]<",0);
   }
-  emit("<",-2);
+  emit("<\n",-2);
 };
 
 fcns.frame = function(names){
