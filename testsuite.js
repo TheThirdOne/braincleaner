@@ -127,3 +127,100 @@ parser.parse("prints var s = [],p=0;\n"+
 parser.codegen(context);
 },["",               ">",                  "[h-e>l+l<o] "],
   ["var s = [],p=0;","var s = [],p=0;p++;","var s = [],p=0;while(s[p]){s[p]=(s[p]||0)-1;p++;s[p]=(s[p]||0)+1;p--;}"]);
+  
+/*ackerman function
+ack(m.n) = n+1 if m = 0
+         = ack(m-1,1) if n = 0
+         = ack(m-1,ack(m,n-1))
+*/
+test(function(){
+context = [[]];
+parser.parse(
+"scand\n"+
+"scand\n"+
+"emit [->>>>>>+<<<<<<]<\n"+
+"emit [->>>>>>+<<<<<<]>>>>>>\n"+
+"frame m n r t b l\n"+
+"to l\n"+
+"emit ++\n"+
+"whilenot\n"+
+  "dup\n"+
+  "emit [-<<+>>]<\n"+
+  "switch\n"+
+    "case 1\n"+
+      "to r\n"+
+      "emit [-<<<<<<+>>>>>>]\n"+ //copy to last r
+      "to b\n"+
+      "emit [-]<<<<<<\n"+
+      "to l\n"+
+      "break\n"+
+    "case 2\n"+
+      "to m\n"+
+      "emit [>>>-<<<[->>+<<]]>>[-<<+>>]>+[-<+>]<<<\n"+ // put 1 in t if m = 0
+      "to r\n"+
+      "loadc 0\n"+
+      "emit <\n"+
+      "if\n"+
+        "to b\n"+
+        "emit [-]+\n"+
+        "to n\n"+
+        "emit [->>+<<]\n"+
+        "to t\n"+
+        "emit +\n"+
+        "to l\n"+
+        "emit >>-<<\n"+
+        "to r\n"+
+      "end\n"+
+      "emit >\n"+
+      "emit >[-<+>]<\n"+
+      "to l\n"+
+    "case 3\n"+
+      "to n\n"+
+      "emit [>>-<<[->+<]]>[-<+>]>+[-<+>]<<\n"+ //put 1 in t if n = 0
+      "to r\n"+
+      "loadc 0\n"+
+      "emit <\n"+
+      "if\n"+
+        "to b\n"+
+        "emit [-]++\n"+
+        "to m\n"+
+        "emit -\n"+
+        "to n\n"+
+        "emit +\n"+
+        "to l\n"+
+        "emit >>-<<\n"+
+        "to r\n"+
+      "end\n"+
+      "emit >\n"+
+      "to l\n"+
+    "case 4\n"+
+      "to b\n"+
+      "emit [-]+++++\n"+
+      "to n\n"+
+      "emit [->>>>>>+<<<<<<]\n"+
+      "to m\n"+
+      "emit [->+>>>>>+<<<<<<]>[-<+>]<\n"+
+      "emit >>>>>>\n"+
+      "to n\n"+
+      "emit -\n"+
+      "to b\n"+
+      "emit ++\n"+
+      "to l\n"+
+      "break\n"+
+    "case 5\n"+
+      "to b\n"+
+      "emit [-]++\n"+
+      "to m\n"+
+      "emit -\n"+
+      "to r\n"+
+      "emit [-<+>]\n"+
+      "to l\n"+
+      "break\n"+
+  "end\n"+
+  "emit [->+<]>\n"+
+"end\n"+
+"emit <<<[-<<+>>]<<\n"+
+"printd");
+parser.codegen(context);
+},["10","12","21"],
+  ["2", "4", "5"]);
