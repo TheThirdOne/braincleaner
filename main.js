@@ -237,6 +237,24 @@ fcns.addto= function(list){
   code += move(-rhs);
   emit(code,0);
 };
+fcns.addc= function(list,c){
+  var sign = c > 0 ?"+":"-";
+  var diff = c > 0?c:-c;
+  c = "";
+  for(var i = 0; i < diff; i++){
+    c += sign;
+  }
+  for(var i = 0; i < list.length; i++){
+    list[i] = frame[list[i]]-frame._loc;
+  }
+  list.sort();
+  var code = move(list[0])+c
+  for(var i = 1; i < list.length; i++){
+    code += move(list[i]-list[i-1]) + c;
+  }
+  code += move(-list[list.length-1]);
+  emit(code,0);
+};
 fcns.clear = function(list){
   for(var i = 0; i < list.length; i++){
     list[i] = frame[list[i]]-frame._loc;

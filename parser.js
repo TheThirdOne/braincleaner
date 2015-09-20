@@ -47,7 +47,12 @@ parser.frame = function(c){
   context[context.length-1].push({type: "inst",fcn:fcns.frame,args:[c]});
 };
 parser.add = function(list){
-  context[context.length-1].push({type: "inst",fcn:fcns.addto,args:[list]});
+  if(!isNaN(parseInt(list[list.length-1]))){
+    var rhs = parseInt(list.splice(-1,1));
+    context[context.length-1].push({type: "inst",fcn:fcns.addc,args:[list,rhs]});
+  }else{
+    context[context.length-1].push({type: "inst",fcn:fcns.addto,args:[list]});
+  }
 };
 parser.equals = function(list){
   context[context.length-1].push({type: "inst",fcn:fcns.clear,args:[list.slice(0,list.length-2)]});

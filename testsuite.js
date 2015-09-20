@@ -158,30 +158,24 @@ parser.parse(
       "emit 1 [>>>-<<<[->>+<<]]>>[-<<+>>]>+[-<+>]<<<\n"+ // put 1 in t if m = 0
       "to r\n"+
       "if\n"+
-        "to b\n"+
-        "emit +\n"+
-        "to n\n"+
-        "emit [->>+<<]\n"+
-        "to t\n"+
-        "emit +\n"+
+        "+= b 1\n"+
+        "+= t n\n"+
+        "+= t 1\n"+
         "to l\n"+
         "emit >>-<<\n"+
         "to r\n"+
       "end\n"+
       "emit >\n"+
-      "emit >[-<+>]<\n"+
+      "+= r t\n"+
       "to l\n"+
     "case 3\n"+
       "to n\n"+
       "emit 1 [>>-<<[->+<]]>[-<+>]>+[-<+>]<<\n"+ //put 1 in t if n = 0
       "to r\n"+
       "if\n"+
-        "to b\n"+
-        "emit ++\n"+
-        "to m\n"+
-        "emit -\n"+
-        "to n\n"+
-        "emit +\n"+
+        "+= b 2\n"+
+        "+= m -1\n"+
+        "+= n 1\n"+
         "to l\n"+
         "emit >>-<<\n"+
         "to r\n"+
@@ -189,30 +183,25 @@ parser.parse(
       "emit >\n"+
       "to l\n"+
     "case 4\n"+
-      "to b\n"+
-      "emit +++++\n"+
+      "+= b 5\n"+
       "to n\n"+
       "emit [->>>>>>+<<<<<<]\n"+
       "to m\n"+
-      "emit [->+>>>>>+<<<<<<]>[-<+>]<\n"+
+      "emit [->+>>>>>+<<<<<<]\n"+
+      "+= m n\n"+
       "emit >>>>>>\n"+
-      "to n\n"+
-      "emit -\n"+
-      "to b\n"+
-      "emit ++\n"+
+      "+= n -1\n"+
+      "+= b 2\n"+
       "to l\n"+
       "break\n"+
     "case 5\n"+
-      "to b\n"+
-      "emit ++\n"+
-      "to m\n"+
-      "emit -\n"+
-      "to r\n"+
-      "emit [-<+>]\n"+
-      "to l\n"+
+      "+= b 2\n"+
+      "+= m -1\n"+
+      "+= n r\n"+
       "break\n"+
   "end\n"+
-  "emit [->+<]>\n"+
+  "emit >\n"+
+  "+= l b\n"+
 "end\n"+
 "emit <<<[-<<+>>]<<\n"+
 "printd");
