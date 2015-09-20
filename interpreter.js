@@ -61,7 +61,7 @@ var run = function(code,input){
     }
     runtime++;
   }
-  if(runtime >= 20000){
+  if(runtime >= 40000){
     throw "Ran too long";
   }
   return [output,runtime,tape,ptr];

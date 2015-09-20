@@ -37,7 +37,8 @@ parser.case = function(c){
   context.push(tmp);
 };
 parser.emit = function(c){
-  context[context.length-1].push({type: "inst",fcn:emit,args:[c,0]});
+  var l = parseInt(c.split(" ")[0])
+  context[context.length-1].push({type: "inst",fcn:emit,args:[l?c.split(" ").splice(1):c,l||0]});
 };
 parser.loadc = function(c){
   context[context.length-1].push({type: "inst",fcn:fcns.loadc,args:[c]});

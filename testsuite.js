@@ -144,8 +144,7 @@ parser.parse(
 "to l\n"+
 "emit ++\n"+
 "whilenot\n"+
-  "dup\n"+
-  "emit [-<<+>>]<\n"+
+  "emit 1\n"+
   "switch\n"+
     "case 1\n"+
       "to r\n"+
@@ -156,13 +155,11 @@ parser.parse(
       "break\n"+
     "case 2\n"+
       "to m\n"+
-      "emit [>>>-<<<[->>+<<]]>>[-<<+>>]>+[-<+>]<<<\n"+ // put 1 in t if m = 0
+      "emit 1 [>>>-<<<[->>+<<]]>>[-<<+>>]>+[-<+>]<<<\n"+ // put 1 in t if m = 0
       "to r\n"+
-      "loadc 0\n"+
-      "emit <\n"+
       "if\n"+
         "to b\n"+
-        "emit [-]+\n"+
+        "emit +\n"+
         "to n\n"+
         "emit [->>+<<]\n"+
         "to t\n"+
@@ -176,13 +173,11 @@ parser.parse(
       "to l\n"+
     "case 3\n"+
       "to n\n"+
-      "emit [>>-<<[->+<]]>[-<+>]>+[-<+>]<<\n"+ //put 1 in t if n = 0
+      "emit 1 [>>-<<[->+<]]>[-<+>]>+[-<+>]<<\n"+ //put 1 in t if n = 0
       "to r\n"+
-      "loadc 0\n"+
-      "emit <\n"+
       "if\n"+
         "to b\n"+
-        "emit [-]++\n"+
+        "emit ++\n"+
         "to m\n"+
         "emit -\n"+
         "to n\n"+
@@ -195,7 +190,7 @@ parser.parse(
       "to l\n"+
     "case 4\n"+
       "to b\n"+
-      "emit [-]+++++\n"+
+      "emit +++++\n"+
       "to n\n"+
       "emit [->>>>>>+<<<<<<]\n"+
       "to m\n"+
@@ -209,7 +204,7 @@ parser.parse(
       "break\n"+
     "case 5\n"+
       "to b\n"+
-      "emit [-]++\n"+
+      "emit ++\n"+
       "to m\n"+
       "emit -\n"+
       "to r\n"+
@@ -222,5 +217,5 @@ parser.parse(
 "emit <<<[-<<+>>]<<\n"+
 "printd");
 parser.codegen(context);
-},["10","12","21"],
-  ["2", "4", "5"]);
+},["10","12","21","23"],
+  ["2", "4", "5", "9"]);
