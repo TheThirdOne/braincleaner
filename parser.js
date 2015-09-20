@@ -37,7 +37,7 @@ parser.case = function(c){
   context.push(tmp);
 };
 parser.emit = function(c){
-  var l = parseInt(c.split(" ")[0])
+  var l = parseInt(c.split(" ")[0]);
   context[context.length-1].push({type: "inst",fcn:emit,args:[l?c.split(" ").splice(1):c,l||0]});
 };
 parser.loadc = function(c){
@@ -45,6 +45,13 @@ parser.loadc = function(c){
 };
 parser.frame = function(c){
   context[context.length-1].push({type: "inst",fcn:fcns.frame,args:[c]});
+};
+parser.add = function(list){
+  context[context.length-1].push({type: "inst",fcn:fcns.addto,args:[list]});
+};
+parser.equals = function(list){
+  context[context.length-1].push({type: "inst",fcn:fcns.clear,args:[list.slice(0,list.length-2)]});
+  context[context.length-1].push({type: "inst",fcn:fcns.addto,args:[list]});
 };
 parser.to = function(c){
   context[context.length-1].push({type: "inst",fcn:fcns.to,args:[c]});
@@ -91,6 +98,10 @@ parser.parse = function(code){
       parser.frame(lines[i].split(" ").slice(1));
     }else if(lines[i].startsWith("to")){
       parser.to(lines[i].slice(3));
+    }else if(lines[i].startsWith("+=")){
+      parser.add(lines[i].slice(3).split(" "));
+    }else if(lines[i].startsWith("=")){
+      parser.equals(lines[i].slice(2).split(" "));
     }else if(lines[i].startsWith("emit")){
       parser.emit(lines[i].slice(5));
     }else if(lines[i].startsWith("prints")){

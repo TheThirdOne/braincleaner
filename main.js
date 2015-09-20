@@ -67,7 +67,7 @@ fcns.prints = function(s){
   for(var k = 0; k < s.length;k++){
     var diff = s.charCodeAt(k) - previous;
     previous += diff;
-    var sign = (diff > 0)?"+":"-";
+    var sign = diff > 0 ?"+":"-";
     diff = diff > 0?diff:-diff;
     for(var i = 0; i < diff; i++){
       code += sign;
@@ -218,14 +218,35 @@ fcns.frame = function(names){
   }
 };
 fcns.to = function(name){
-  var diff = frame[name] - frame._loc;
-  var sign = diff > 0 ?">":"<";
-  diff = diff > 0?diff:-diff;
-  var code = "";
-  for(var i = 0; i < diff; i++){
-    code += sign;
-  }
+  var code = move(frame[name] - frame._loc)
   frame._loc = frame[name];
+  emit(code,0);
+};
+fcns.addto= function(list){
+  for(var i = 0; i < list.length; i++){
+    list[i] = frame[list[i]]-frame._loc;
+  }
+  var rhs = list.splice(-1,1);
+  list.sort();
+  var code = move(rhs);
+  code += "[-" + move(list[0]-rhs)+"+";
+  for(var i = 1; i < list.length; i++){
+    code += move(list[i]-list[i-1]) + "+";
+  }
+  code += move(rhs-list[list.length-1])+"]";
+  code += move(-rhs);
+  emit(code,0);
+};
+fcns.clear = function(list){
+  for(var i = 0; i < list.length; i++){
+    list[i] = frame[list[i]]-frame._loc;
+  }
+  list.sort();
+  var code = move(list[0])+"[-]"
+  for(var i = 1; i < list.length; i++){
+    code += move(list[i]-list[i-1]) + "[-]";
+  }
+  code += move(-list[list.length-1]);
   emit(code,0);
 };
 
@@ -236,3 +257,13 @@ var emit = function(str,diff){
     throw "Stack too small";
   }
 };
+
+var move = function(diff){
+  var sign = diff > 0 ?">":"<";
+  diff = diff > 0?diff:-diff;
+  var code = "";
+  for(var i = 0; i < diff; i++){
+    code += sign;
+  }
+  return code;
+}
