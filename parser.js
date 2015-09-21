@@ -71,16 +71,15 @@ parser.break = function(){
 };
 
 parser.inst = function(inst){
-  if(typeof fcns[inst] !== "function"){
+  var parts = inst.split(" ");
+  if(typeof fcns[parts[0]] !== "function"){
     throw "Not a valid instruction:"+inst;
   }
-  if(fcns[inst].length !== 0){
-    throw "Not a macro:"+inst;
+  if(fcns[parts[0]].length !== 0){
+    context[context.length-1].push({type:"inst",fcn:fcns[parts.splice(0,1)],args:[parts.join(" ")]});
+  }else{
+    context[context.length-1].push({type:"inst",fcn:fcns[inst]});
   }
-  context[context.length-1].push({type:"inst",fcn:fcns[inst]});
-};
-parser.prints = function(line){
-  context[context.length-1].push({type:"inst",fcn:fcns.prints,args:[line]});
 };
 parser.parse = function(code){
   var lines = code.split("\n");
@@ -101,16 +100,12 @@ parser.parse = function(code){
       parser.loadc(parseInt(lines[i].split(" ")[1]));
     }else if(lines[i].startsWith("frame")){
       parser.frame(lines[i].split(" ").slice(1));
-    }else if(lines[i].startsWith("to")){
-      parser.to(lines[i].slice(3));
     }else if(lines[i].startsWith("+=")){
       parser.add(lines[i].slice(3).split(" "));
     }else if(lines[i].startsWith("=")){
       parser.equals(lines[i].slice(2).split(" "));
     }else if(lines[i].startsWith("emit")){
       parser.emit(lines[i].slice(5));
-    }else if(lines[i].startsWith("prints")){
-      parser.prints(lines[i].slice(7));
     }else{
       parser.inst(lines[i]);
     }
