@@ -1,0 +1,60 @@
+func main a b c d e f g:
+  
+  // comments work like this
+  /* or like this */
+
+  a += c;
+  b += c;
+  
+  //or equivilantly 
+  a b += c;
+
+  a -= c; // works similarly
+  
+  a = c; // same as a = 0; a += c
+  
+  a = c b * d +; //postfix notation for expressions
+
+  a = b c | ^; // works with bitwise aswell
+  
+  a = b c ==; // and comparison
+  
+  //if's work
+  if a 0 == :
+    a b = add a b; //multiple return built in 
+  else
+    a += b;
+  end
+
+  //if's work
+  while a 0 !=:
+    b += c;
+  end
+  
+  switch a 1 +:
+    case 3:
+      a += b;
+    case 4:
+      a += b;
+      break;
+    case 5:
+      a += c;
+    case 6: 
+      a += c;
+  end
+  
+end
+
+//functions are called by inlining a stack frame construction and the codegen of the function
+func add a b: 
+  a += b;
+  return a, b;
+end
+
+inline multiply a b:
+  b[-           // while b 0 >
+    a[-t1+t2+a] // t1 t2 += a
+    t2[-a+t2]   // a += t2
+  b]            // a = a; b = 0; t1 = a*b; t2 = 0;
+  ret t1
+end
