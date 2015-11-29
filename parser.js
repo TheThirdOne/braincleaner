@@ -1,138 +1,171 @@
-var parser = {},context = [[]];
+//Uses getToken[x], parseInlineFunction[x], parseStatement[x]
+function parseFunction(token){
+  token = token || getToken();
+  if(token.token !== 'identifier' && (token.data !== 'func' || token.data !== 'inline')){
+    throw "Unexpected " + token.token + " \"" + token.data + "\". Expected \"func\" or \"inline\".";
+  }
+  if(token.data === 'inline'){
+    return parseInlineFunction(token);
+  }
+  token = getToken();
+  if(token.token !== 'identifier'){
+    throw "Unexpected " + token.token + ". Expected function name.";
+  }
+  var name = token.data;
+  token = getToken();
+  var args = [];
+  while(token.token != ':'){
+    if(token.token != 'identifier'){
+      throw "Unexpected " + token.token + ". Expected argument or :.";
+    }
+    args.push(token.data);
+    token = getToken();
+  }
+  var body = [];
+  token = getToken();
+  while(token.data !== 'end' && token.token !== 'EOF'){
+    body.push(parseStatement(token));
+    token = getToken();
+  }
+  return {type:'function',name:name,args:args,body:body};
+}
 
-parser.switch = function(){
-  var c = [];
-  c.type = "switch";
-  context.push(c);
-};
-parser.whilenot = function(){
-  var c = [];
-  c.type = "whilenot";
-  context.push(c);
-};
-parser.if = function(){
-  var c = [];
-  c.type = "if";
-  context.push(c);
-};
-parser.end= function(){
-  var last = context.pop();
-  context[context.length-1].push(last);
-  if(last.type === "case"){
-    parser.end();
+//Uses getToken[x], getInlineToken[x]
+function parseInlineFunction(token){
+  token = token || getToken();
+  if(token.token !== 'identifier' && token.data !== 'inline'){
+    throw "Unexpected " + token.token + " \"" + token.data + "\". Expected \"inline\".";
   }
-};
-parser.case = function(c){
-  if(context[context.length-1].type !== "switch" && context[context.length-1].type !== "case" ){
-    throw "Cannot use case outside switch";
+  token = getToken();
+  if(token.token !== 'identifier'){
+    throw "Unexpected " + token.token + ". Expected function name.";
   }
-  if(context[context.length-1].type === "case"){
-    var last = context.pop();
-    context[context.length-1].push(last);
+  var name = token.data;
+  token = getToken();
+  var args = [];
+  while(token.token != ':'){
+    if(token.token != 'identifier'){
+      throw "Unexpected " + token.token + ". Expected argument or :.";
+    }
+    args.push(token.data);
+    token = getToken();
   }
-  var tmp = [];
-  tmp.type = "case";
-  tmp.case = c;
-  tmp.break = false;
-  context.push(tmp);
-};
-parser.emit = function(c){
-  context[context.length-1].push({type: "inst",fcn:emit,args:[c,0]});
-};
-parser.loadc = function(c){
-  context[context.length-1].push({type: "inst",fcn:fcns.loadc,args:[c]});
-};
-parser.frame = function(c){
-  context[context.length-1].push({type: "inst",fcn:fcns.frame,args:[c]});
-};
-parser.to = function(c){
-  context[context.length-1].push({type: "inst",fcn:fcns.to,args:[c]});
-};
-parser.break = function(){
-  if(context[context.length-1].type !== "case" ){
-    throw "Cannot use break outside case";
+  var body = [];
+  token = getInlineToken();
+  while(token.data !== 'end' && token.token !== 'EOF'){
+    body.push(token);
+    token = getInlineToken();
   }
-  var last = context.pop();
-  last.break = true;
-  context[context.length-1].push(last);
-};
+  return {type:'function',name:name,args:args,body:body};
+}
 
-parser.inst = function(inst){
-  if(typeof fcns[inst] !== "function"){
-    throw "Not a valid instruction:"+inst;
+//Uses getToken[x], parseAssignment[x], parseIf[x], parseSwitch[], parseWhile[x]
+//parse = += -= if switch while 
+function parseStatement(token){
+  token = token || getToken();
+  if(token.token !== 'identifier'){
+    throw "Unexpected " + token.token + ". Expected \"if\", \"while\", \"switch\", or a variable"
   }
-  if(fcns[inst].length !== 0){
-    throw "Not a macro:"+inst;
+  switch(token.data){
+    case "if":
+      return parseIf(token);
+      break;
+    case "while":
+      return parseWhile(token);
+      break;
+    case "switch":
+      return parseSwitch(token);
+      break;
+    default:
+      return parseAssignment(token);
+      break;
   }
-  context[context.length-1].push({type:"inst",fcn:fcns[inst]});
-};
-parser.prints = function(line){
-  context[context.length-1].push({type:"inst",fcn:fcns.prints,args:[line]});
-};
-parser.parse = function(code){
-  var lines = code.split("\n");
-  for(var i = 0; i < lines.length;i++){
-    if(lines[i] === "switch"){
-      parser.switch();
-    }else if(lines[i] === "whilenot"){
-      parser.whilenot();
-    }else if(lines[i] === "break"){
-      parser.break();
-    }else if(lines[i] === "end"){
-      parser.end();
-    }else if(lines[i] === "if"){
-      parser.if();
-    }else if(lines[i].startsWith("case")){
-      parser.case(parseInt(lines[i].split(" ")[1]));
-    }else if(lines[i].startsWith("loadc")){
-      parser.loadc(parseInt(lines[i].split(" ")[1]));
-    }else if(lines[i].startsWith("frame")){
-      parser.frame(lines[i].split(" ").slice(1));
-    }else if(lines[i].startsWith("to")){
-      parser.to(lines[i].slice(3));
-    }else if(lines[i].startsWith("emit")){
-      parser.emit(lines[i].slice(5));
-    }else if(lines[i].startsWith("prints")){
-      parser.prints(lines[i].slice(7));
-    }else{
-      parser.inst(lines[i]);
+}
+
+//Uses getToken[x]
+//parses statements of the form "a b c d = a b + 5 *;" or "print a"
+function parseAssignment(token){
+  token = token || getToken();
+  if(token.token !== 'identifier'){
+    throw "Unexpected " + token.token + ". Expected function or variable"
+  }
+  var assignment = [], operator = '', expression = [];
+  while(token.token === 'identifier'){
+    assignment.push(token);
+    token = getToken();
+  }
+  if(token.token === '+=' || token.token === '=' || token.token === '-='){
+    operator = token.token;
+    while(token.token !== ';' && token.token !== 'EOF'){
+      expression.push(token);
+      token = getToken();
     }
   }
-};
+  if(token.token !== ';'){
+    throw "Unexpected " + token.token + ". Expected ;";
+  }
+  if(operator === ''){
+    operator = '_';
+    expression = assignment;
+    assignment = [];
+  }
+  return {type:'statement', assignment: assignment, operator: operator, expression: expression};
+}
 
-parser.codegen = function(context){
-  if(context.type === "inst"){
-    context.fcn.apply(context,context.args);
-    return;
+//Uses getToken[x]
+function parseWhile(token){
+  token = token || getToken();
+  if(token.token !== 'identifier' || token.data !== 'while' ){
+    throw "Unexpected " + token.token + ". Expected \"while\""
   }
-  var statements = [];
-  for(var i = 0; i < context.length; i++){
-    statements[i] = parser.codegen.bind(parser,context[i]);
+  token = getToken();
+  var body = [], expression = [];
+  while(token.token !== ':' && token.token !== 'EOF'){
+    expression.push(token);
+    token = getToken();
   }
-  if(context.type === "switch"){
-    var breaks = [], cases = [], triggers = [];
-    for(var i = 0; i < context.length; i++){
-      if(context[i].type === "case"){
-        breaks.unshift(!context[i].break);
-        triggers.unshift(context[i].case);
-        cases.unshift(statements[i]);
-      }
+  if(token.token !== ':'){
+    throw "Unexpected " + token.token + ". Expected :";
+  }
+  token = getToken();
+  while(token.data !== 'end' && token.token !== 'EOF'){
+    body.push(parseStatement(token));
+    token = getToken();
+  }
+  return {type:'while', expression: expression, body: body};
+}
+
+//Uses getToken[x]
+function parseIf(token){
+  token = token || getToken();
+  if(token.token !== 'identifier' || token.data !== 'if'|| token.data !== 'elif'){
+    throw "Unexpected " + token.token + ". Expected \"if\""
+  }
+  token = getToken();
+  var ifBody = [], elseBody = [], expression = [];
+  while(token.token !== ':' && token.token !== 'EOF'){
+    expression.push(token);
+    token = getToken();
+  }
+  if(token.token !== ':'){
+    throw "Unexpected " + token.token + ". Expected :";
+  }
+  token = getToken();
+  while(token.data !== 'end' && token.data !== 'else' && token.data !== 'elif' && token.token !== 'EOF'){
+    ifBody.push(parseStatement(token));
+    token = getToken();
+  }
+  if(token.data === 'end'){
+    return {type:'if', expression: expression, if: ifBody, else: []};
+  }else if(token.data === 'elif'){
+    return {type:'if', expression: expression, if: ifBody, else: [parseIf(token)]};
+  }else if(token.data === 'else'){
+    while(token.data !== 'end' && token.token !== 'EOF'){
+      elseBody.push(parseStatement(token));
+      token = getToken();
     }
-    fcns.switch(cases,triggers,function(){},breaks);
-    return;
+    return {type:'if', expression: expression, if: ifBody, else: elseBody};
+  }else{
+    throw "Unexpected " + token.token + ". Expected \"end\", \"else\", or \"elif\",";
   }
-  var doAll = function(){
-    for(var i = 0; i < statements.length; i++){
-      statements[i]();
-    }
-  };
-  if(context.type === "whilenot"){
-    fcns.whilenot(0,doAll);
-    return;
-  }
-  if(context.type === "if"){
-    fcns.if(doAll);
-    return;
-  }
-  doAll();
 }
