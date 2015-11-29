@@ -96,6 +96,7 @@ function parseAssignment(token){
   }
   if(token.token === '+=' || token.token === '=' || token.token === '-='){
     operator = token.token;
+    token = getToken();
     while(token.token !== ';' && token.token !== 'EOF'){
       expression.push(token);
       token = getToken();
@@ -138,7 +139,7 @@ function parseWhile(token){
 //Uses getToken[x]
 function parseIf(token){
   token = token || getToken();
-  if(token.token !== 'identifier' || token.data !== 'if'|| token.data !== 'elif'){
+  if(token.token !== 'identifier' || (token.data !== 'if' && token.data !== 'elif')){
     throw "Unexpected " + token.token + ". Expected \"if\""
   }
   token = getToken();
