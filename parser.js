@@ -1,4 +1,3 @@
-//Uses getToken[x], parseInlineFunction[x], parseStatement[x]
 function parseFunction(token){
   token = token || getToken();
   if(token.token !== 'identifier' && (token.data !== 'func' || token.data !== 'inline')){
@@ -30,7 +29,6 @@ function parseFunction(token){
   return {type:'function',name:name,args:args,body:body};
 }
 
-//Uses getToken[x], getInlineToken[x]
 function parseInlineFunction(token){
   token = token || getToken();
   if(token.token !== 'identifier' && token.data !== 'inline'){
@@ -59,7 +57,6 @@ function parseInlineFunction(token){
   return {type:'function',name:name,args:args,body:body};
 }
 
-//Uses getToken[x], parseAssignment[x], parseIf[x], parseSwitch[], parseWhile[x]
 //parse = += -= if switch while 
 function parseStatement(token){
   token = token || getToken();
@@ -82,7 +79,6 @@ function parseStatement(token){
   }
 }
 
-//Uses getToken[x]
 //parses statements of the form "a b c d = a b + 5 *;" or "print a"
 function parseAssignment(token){
   token = token || getToken();
@@ -113,7 +109,6 @@ function parseAssignment(token){
   return {type:'statement', assignment: assignment, operator: operator, expression: expression};
 }
 
-//Uses getToken[x]
 function parseWhile(token){
   token = token || getToken();
   if(token.token !== 'identifier' || token.data !== 'while' ){
@@ -136,7 +131,6 @@ function parseWhile(token){
   return {type:'while', expression: expression, body: body};
 }
 
-//Uses getToken[x]
 function parseIf(token){
   token = token || getToken();
   if(token.token !== 'identifier' || (token.data !== 'if' && token.data !== 'elif')){
@@ -169,4 +163,56 @@ function parseIf(token){
   }else{
     throw "Unexpected " + token.token + ". Expected \"end\", \"else\", or \"elif\",";
   }
+}
+
+function parseSwitch(token){
+  token = token || getToken();
+  if(token.token !== 'identifier' || token.data !== 'switch'){
+    throw "Unexpected " + token.token + ". Expected \"switch\""
+  }
+  token = getToken();
+  var cases = [], def = [], expression = [];
+  while(token.token !== ':' && token.token !== 'EOF'){
+    expression.push(token);
+    token = getToken();
+  }
+  if(token.token !== ':'){
+    throw "Unexpected " + token.token + ". Expected :";
+  }
+  token = getToken();
+  while(token.token === 'identifier' && (token.data === 'case' || token.data === 'default')){
+    var tmp; //reference to array to modify
+    if (token.data === 'default'){
+      tmp = def = [];
+    }else{
+      token = getToken();
+      if(token.token !== 'number'){
+        throw "Unexpected " + token.token + ". Expected a number";
+      }
+      tmp = [];
+      cases.push({type:'case', num:token, body:tmp});
+    }
+    token = getToken();
+    if(token.token !== ':'){
+      throw "Unexpected " + token.token + ". Expected :";
+    }
+    token = getToken();
+    while(token.data !== 'end' && token.data !== 'break' && token.data !== 'case' && token.data !== 'def' && token.token !== 'EOF'){
+      tmp.push(parseStatement(token));
+      token = getToken();
+    }
+    if(token.data === 'break'){
+      tmp.push({type:'break'});
+
+      token = getToken(); //eat the ';' and get the next token
+      if(token.token !== ';'){
+        throw "Unexpected " + token.token + ". Expected ;";
+      }
+      token = getToken();
+    }
+  }
+  if(token.data !== 'end'){
+    throw "Unexpected " + token.token + ". Expected \"break\"";
+  }
+  return {type:'switch', expression: expression, default: def, cases: cases};
 }
