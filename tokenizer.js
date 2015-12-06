@@ -7,16 +7,16 @@ function getToken(){
   if(lastChar === '/'){ //comments
     lastChar = input.getChar();
     if(lastChar === '/'){
-      while(lastChar != '\n' && lastChar != ''){
+      while(lastChar !== '\n' && lastChar !== ''){
         lastChar = input.getChar();
       }
     }else if(lastChar === '*'){
       do{
         lastChar = input.getChar();
-        while(lastChar != '*' && lastChar != ''){
+        while(lastChar !== '*' && lastChar !== ''){
           lastChar = input.getChar();
         }
-      }while(lastChar != '/' && lastChar != '');
+      }while(lastChar !== '/' && lastChar !== '');
     }else{
       return {token:'/',index:input.getIndex()};
     }
@@ -46,7 +46,7 @@ function getToken(){
   }
   if(lastChar === '='){
     lastChar = input.getChar();
-    if(lastChar == '='){
+    if(lastChar === '='){
       return {token:'==',index:input.getIndex()};
     }else{
       input.returnChar(lastChar);
@@ -56,10 +56,10 @@ function getToken(){
   if(lastChar === '+' || lastChar === '-'){
     var sign = lastChar;
     lastChar = input.getChar();
-    if(lastChar == '='){
+    if(lastChar === '='){
       lastChar = input.getChar();
       input.returnChar(lastChar);
-      if(lastChar == '='){
+      if(lastChar === '='){
         input.returnChar('=');
         return {token:sign,index:input.getIndex()};
       }else{
@@ -93,16 +93,16 @@ function getInlineToken(){
   if(lastChar === '/'){ //comments
     lastChar = input.getChar();
     if(lastChar === '/'){
-      while(lastChar != '\n' && lastChar != ''){
+      while(lastChar !== '\n' && lastChar !== ''){
         lastChar = input.getChar();
       }
     }else if(lastChar === '*'){
       do{
         lastChar = input.getChar();
-        while(lastChar != '*' && lastChar != ''){
+        while(lastChar !== '*' && lastChar !== ''){
           lastChar = input.getChar();
         }
-      }while(lastChar != '/' && lastChar != '');
+      }while(lastChar !== '/' && lastChar !== '');
     }else{
       throw "Unexpected / in inline function";
     }
