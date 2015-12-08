@@ -72,7 +72,7 @@ function checkExprs(name, block, state){
           throw "In Function " + name + ": Expression unbalanced stack reaches below 0.\"" + block[i].expression.join(" ") + "\"";
         }
       }
-      if(stack !== 1){
+      if(stack !== 1 && stack !== block[i].assignment.length){
         throw "In Function " + name + ": Expression must result in a stack of size 1. Resulted in stack of size " + stack + ". \"" + block[i].expression.join(" ") + "\"";
       }
     }
