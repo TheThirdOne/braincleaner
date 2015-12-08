@@ -57,25 +57,23 @@ function parseInlineFunction(token){
   return {type:'function',name:name,args:args,body:body};
 }
 
-//parse = += -= if switch while 
+//parse = += -= if switch while
 function parseStatement(token){
   token = token || getToken();
   if(token.token !== 'identifier'){
-    throw "Unexpected " + token.token + ". Expected \"if\", \"while\", \"switch\", or a variable"
+    throw "Unexpected " + token.token + ". Expected \"if\", \"while\", \"switch\", or a variable";
   }
   switch(token.data){
     case "if":
       return parseIf(token);
-      break;
     case "while":
       return parseWhile(token);
-      break;
     case "switch":
       return parseSwitch(token);
-      break;
+    case "return":
+      return parseReturn(token);
     default:
       return parseAssignment(token);
-      break;
   }
 }
 
@@ -108,11 +106,27 @@ function parseAssignment(token){
   }
   return {type:'statement', assignment: assignment, operator: operator, expression: expression};
 }
+function parseReturn(token){
+  token = token || getToken();
+  if(token.token !== 'identifier' || token.data !== 'return' ){
+    throw "Unexpected " + token.token + ". Expected \"return\"";
+  }
+  token = getToken();
+  var params = [];
+  while(token.token === 'identifier'){
+    params.push(token);
+    token = getToken();
+  }
+  if(token.token !== ';'){
+    throw "Unexpected " + token.token + ". Expected ;";
+  }
+  return {type:'return', params: params};
+}
 
 function parseWhile(token){
   token = token || getToken();
   if(token.token !== 'identifier' || token.data !== 'while' ){
-    throw "Unexpected " + token.token + ". Expected \"while\""
+    throw "Unexpected " + token.token + ". Expected \"while\"";
   }
   token = getToken();
   var body = [], expression = [];
