@@ -49,8 +49,8 @@ function noteData(name, block, state){
       noteData(name,block[i].def,state);
     }else if(block[i].type === 'statement'){
       for(var k = 0; k < block[i].expression.length; k++){
-        if(state.fcns[block[i].expression[0].data]){
-          var fcn = state.fcns[block[i].expression[0].data];
+        if(state.fcns[block[i].expression[k].data]){
+          var fcn = state.fcns[block[i].expression[k].data];
           state.fcns[name].calls[fcn.name] = true;
         }
       }
