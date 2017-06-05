@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <style>
+      .pass {
+        background-color:green
+      }
+      .fail {
+        background-color:red
+      }
+      .pass, .fail {
+        width: 18px;
+        height: 18px;
+        margin: 0px 2px 2px 2px;
+        border-radius:5px;
+        float:left;
+      }
+      #console,#tests {
+        display:block;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="tests"></div>
+    <div id="console"></div>
+    <script src="main.js"></script>
+    <script src="interpreter.js"></script>
+    <script src="parser.js"></script>
+    <script src="test.js"></script>
+    <script src="testsuite.js"></script>
+  </body>
+</html>
