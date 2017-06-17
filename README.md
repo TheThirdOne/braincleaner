@@ -127,28 +127,26 @@ Additionally, it is possible to define functions in this reduced format; however
 
 ### Example using the ackermann function
 
-TODO: This Needs more explanation, but the raw IR is here know.
-
-Here is the first stage of the after translation to the IR. At this stage it is still pretty readable, but clearly much lower level than Braincleaner proper.
+Here is the first stage of the after translation to the IR. At this stage it is still pretty readable, but clearly much lower level than Braincleaner proper. Just follow the comments for an explanation of the constructs.
 
 ```
-(defr ack (m n) ($temp14)
-  (_push )
-  (_name $temp13-return)
+(defr ack (m n) ($temp14) ; Defines a reduced (IR) function with two arguments m and n that returns one argument $temp14
+  (_push )                ; Allocate space for another variable
+  (_name $temp13-return)  ; Name that variable $temp-13-return
   (_push )
   (_name $temp13-temp)
-  (trampoline 2
+  (trampoline 2           ; Start a trampoline with 2 arguments 
     (_push )
     (_name $temp13-continuation)
     (_add $temp13-continuation 1)
-    (while $temp13-continuation
-      (_clear $temp13-continuation)
+    (while $temp13-continuation     ; continue while $temp13-continuation != 0
+      (_clear $temp13-continuation) ; set  $temp13-continuation = 0
       (_push )
-      (callm copy m S)
+      (callm copy m S)              ; Call a function with references (S means the top variable)
       (_push )
-      (_add S 1)
-      (if S-1
-        (_clear S)
+      (_add S 1)                    ; Add (+ in brainfuck) to a variable
+      (if S-1                       ; If variable is != 0 (at the end of the if that variable MUST be 0) top variable)
+        (_clear S)                  ; (S-1 means the second to the top variable)
         (callm -- m)
         (_push )
         (callm copy n S)
@@ -161,13 +159,13 @@ Here is the first stage of the after translation to the IR. At this stage it is 
           (callm copy m S)
           (_push )
           (_add S 1)
-          (call +)
+          (call +)                 ; Call a function which uses stack based arguments
           (_push )
           (callm copy n S)
-          (_move S $temp13-return)
+          (_move S $temp13-return) ; Set the first argument to 0, and the add its value to all of the rest 
           (_add $temp13-return 1)
           (_move S-1 n)
-          (_pop )
+          (_pop )                  ; Dealllocate a variable from the top of the stack
           (_pop )
           (_clear S-1)
         )
@@ -210,11 +208,11 @@ Here is the first stage of the after translation to the IR. At this stage it is 
 )
 ```
 
-After inlining all the function and doing name simplification it looks like.
+After inlining all the function and doing name simplification (reducing names to stack relative references) it looks like.
 
 ```
 (defr ack (m n) ($temp14)
-  (_push )
+  (_push )                  ; Note that the _name calls are gone
   (_push )
   (trampoline 2
     (_push )
@@ -222,7 +220,7 @@ After inlining all the function and doing name simplification it looks like.
     (while S
       (_clear S)
       (_push )
-      (_move S-5 S-5 S)
+      (_move S-5 S-5 S)     ; Note the S-5 occurring twice, that means we are copying S-5 to S
       (_push )
       (_add S 1)
       (if S-1
@@ -234,7 +232,7 @@ After inlining all the function and doing name simplification it looks like.
         (_add S 1)
         (if S-1
           (_clear S)
-          (_sub S-7 1)
+          (_sub S-7 1)     ; Like _add but for - (in brainfuck)
           (_push )
           (_move S-9 S-9 S)
           (_push )
